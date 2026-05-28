@@ -3,7 +3,7 @@ import requests as rq
 import pandas as pd
 import matplotlib.pyplot as plt
 
-server_loc = "https://expense-tracker-backend.onrender.com"
+server_loc = "https://expense-tracker-backend-uf64.onrender.com"
 
 st.title("EXPENSE TRACKER")
 
