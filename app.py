@@ -7,10 +7,7 @@ server_loc = "https://expense-tracker-backend-uf64.onrender.com"
 
 st.title("EXPENSE TRACKER")
 
-
-# =========================================
 # REQUEST FUNCTION
-# =========================================
 
 def make_request(method, endpoint, data=None):
 
@@ -69,9 +66,7 @@ def make_request(method, endpoint, data=None):
         return None
 
 
-# =========================================
 # SIDEBAR
-# =========================================
 
 opt = st.sidebar.selectbox(
     "Choose Operation",
@@ -88,9 +83,7 @@ opt = st.sidebar.selectbox(
 )
 
 
-# =========================================
 # ADD
-# =========================================
 
 if opt == "ADD_EXPENSE":
 
@@ -138,9 +131,7 @@ if opt == "ADD_EXPENSE":
                 st.success(response["msg"])
 
 
-# =========================================
 # VIEW
-# =========================================
 
 elif opt == "VIEW_EXPENSE":
 
@@ -158,9 +149,7 @@ elif opt == "VIEW_EXPENSE":
         st.dataframe(df)
 
 
-# =========================================
 # DELETE
-# =========================================
 
 elif opt == "DELETE_EXPENSE":
 
@@ -182,9 +171,7 @@ elif opt == "DELETE_EXPENSE":
             st.success(response["msg"])
 
 
-# =========================================
 # UPDATE
-# =========================================
 
 elif opt == "UPDATE_EXPENSE":
 
@@ -232,9 +219,7 @@ elif opt == "UPDATE_EXPENSE":
             st.success(response["msg"])
 
 
-# =========================================
 # SEARCH
-# =========================================
 
 elif opt == "SEARCH_EXPENSE":
 
@@ -255,10 +240,7 @@ elif opt == "SEARCH_EXPENSE":
 
             st.dataframe(df)
 
-
-# =========================================
 # SORT
-# =========================================
 
 elif opt == "SORT_EXPENSE":
 
@@ -282,10 +264,7 @@ elif opt == "SORT_EXPENSE":
 
             st.dataframe(df)
 
-
-# =========================================
 # FILTER
-# =========================================
 
 elif opt == "FILTER_EXPENSE":
 
@@ -309,10 +288,7 @@ elif opt == "FILTER_EXPENSE":
 
             st.dataframe(df)
 
-
-# =========================================
 # ANALYSIS
-# =========================================
 
 elif opt == "SPENDING_ANALYSIS":
 
