@@ -7,6 +7,72 @@ server_loc = "https://expense-tracker-backend.onrender.com"
 
 st.title("EXPENSE TRACKER")
 
+
+# =========================================
+# REQUEST FUNCTION
+# =========================================
+
+def make_request(method, endpoint, data=None):
+
+    url = f"{server_loc}{endpoint}"
+
+    try:
+
+        if method == "GET":
+            res = rq.get(url, timeout=60)
+
+        elif method == "POST":
+            res = rq.post(
+                url,
+                json=data,
+                timeout=60
+            )
+
+        elif method == "PUT":
+            res = rq.put(
+                url,
+                json=data,
+                timeout=60
+            )
+
+        elif method == "DELETE":
+            res = rq.delete(
+                url,
+                timeout=60
+            )
+
+        try:
+            response = res.json()
+
+        except:
+            st.error("Backend is not returning JSON")
+            st.write(res.text)
+            return None
+
+        if res.status_code != 200:
+
+            st.error(f"Backend Error: {res.status_code}")
+            st.write(response)
+
+            return None
+
+        return response
+
+    except rq.exceptions.Timeout:
+
+        st.error("Server timeout. Render may be sleeping.")
+        return None
+
+    except Exception as e:
+
+        st.error(f"Error: {e}")
+        return None
+
+
+# =========================================
+# SIDEBAR
+# =========================================
+
 opt = st.sidebar.selectbox(
     "Choose Operation",
     [
@@ -21,7 +87,11 @@ opt = st.sidebar.selectbox(
     ]
 )
 
-#  ADD 
+
+# =========================================
+# ADD
+# =========================================
+
 if opt == "ADD_EXPENSE":
 
     st.header("ADD EXPENSE")
@@ -29,6 +99,7 @@ if opt == "ADD_EXPENSE":
     with st.form("adding"):
 
         title = st.text_input("Title")
+
         amount = st.number_input("Amount")
 
         category = st.selectbox(
@@ -57,29 +128,40 @@ if opt == "ADD_EXPENSE":
                 "d": str(expense_date)
             }
 
-            res = rq.post(
-                f"{server_loc}/add_expense",
-                json=new_data
+            response = make_request(
+                "POST",
+                "/add_expense",
+                new_data
             )
 
-            st.success(res.json()["msg"])
+            if response:
+                st.success(response["msg"])
 
 
-# VIEW 
+# =========================================
+# VIEW
+# =========================================
+
 elif opt == "VIEW_EXPENSE":
 
     st.header("VIEW EXPENSES")
 
-    res = rq.get(f"{server_loc}/view_expense")
+    data = make_request(
+        "GET",
+        "/view_expense"
+    )
 
-    data = res.json()
+    if data:
 
-    df = pd.DataFrame(data)
+        df = pd.DataFrame(data)
 
-    st.dataframe(df)
+        st.dataframe(df)
 
 
-# DELETE 
+# =========================================
+# DELETE
+# =========================================
+
 elif opt == "DELETE_EXPENSE":
 
     st.header("DELETE EXPENSE")
@@ -91,14 +173,19 @@ elif opt == "DELETE_EXPENSE":
 
     if st.button("DELETE"):
 
-        res = rq.delete(
-            f"{server_loc}/delete_expense/{expense_id}"
+        response = make_request(
+            "DELETE",
+            f"/delete_expense/{expense_id}"
         )
 
-        st.success(res.json()["msg"])
+        if response:
+            st.success(response["msg"])
 
 
-# UPDATE 
+# =========================================
+# UPDATE
+# =========================================
+
 elif opt == "UPDATE_EXPENSE":
 
     st.header("UPDATE EXPENSE")
@@ -135,14 +222,20 @@ elif opt == "UPDATE_EXPENSE":
             "d": str(expense_date)
         }
 
-        res = rq.put(
-            f"{server_loc}/update_expense/{expense_id}",
-            json=update_data
+        response = make_request(
+            "PUT",
+            f"/update_expense/{expense_id}",
+            update_data
         )
 
-        st.success(res.json()["msg"])
+        if response:
+            st.success(response["msg"])
 
-#SEARCH
+
+# =========================================
+# SEARCH
+# =========================================
+
 elif opt == "SEARCH_EXPENSE":
 
     st.header("SEARCH EXPENSE")
@@ -151,15 +244,22 @@ elif opt == "SEARCH_EXPENSE":
 
     if st.button("SEARCH"):
 
-        res = rq.get(f"{server_loc}/search_expense/{title}")
+        data = make_request(
+            "GET",
+            f"/search_expense/{title}"
+        )
 
-        data = res.json()
+        if data:
 
-        df = pd.DataFrame(data)
+            df = pd.DataFrame(data)
 
-        st.dataframe(df)
+            st.dataframe(df)
 
+
+# =========================================
 # SORT
+# =========================================
+
 elif opt == "SORT_EXPENSE":
 
     st.header("SORT EXPENSE")
@@ -171,16 +271,23 @@ elif opt == "SORT_EXPENSE":
 
     if st.button("SORT"):
 
-        res = rq.get(f"{server_loc}/sort_expense/{order}")
+        data = make_request(
+            "GET",
+            f"/sort_expense/{order}"
+        )
 
-        data = res.json()
+        if data:
 
-        df = pd.DataFrame(data)
+            df = pd.DataFrame(data)
 
-        st.dataframe(df)
+            st.dataframe(df)
 
+
+# =========================================
 # FILTER
-elif opt=="FILTER_EXPENSE":
+# =========================================
+
+elif opt == "FILTER_EXPENSE":
 
     st.header("FILTER EXPENSE")
 
@@ -191,33 +298,45 @@ elif opt=="FILTER_EXPENSE":
 
     if st.button("FILTER"):
 
-        res = rq.get(f"{server_loc}/filter_expense/{category}")
+        data = make_request(
+            "GET",
+            f"/filter_expense/{category}"
+        )
 
-        data = res.json()
+        if data:
+
+            df = pd.DataFrame(data)
+
+            st.dataframe(df)
+
+
+# =========================================
+# ANALYSIS
+# =========================================
+
+elif opt == "SPENDING_ANALYSIS":
+
+    st.header("CATEGORY WISE SPENDING")
+
+    data = make_request(
+        "GET",
+        "/spending_analysis"
+    )
+
+    if data:
 
         df = pd.DataFrame(data)
 
         st.dataframe(df)
 
-# ANALYSE
-elif opt=="SPENDING_ANALYSIS":
+        fig, ax = plt.subplots()
 
-    st.header("CATEGORY WISE SPENDING")
+        ax.bar(df["category"], df["total"])
 
-    res = rq.get(f"{server_loc}/spending_analysis")
+        ax.set_xlabel("Category")
 
-    data = res.json()
+        ax.set_ylabel("Amount")
 
-    df = pd.DataFrame(data)
+        ax.set_title("Expense Analysis")
 
-    st.dataframe(df)
-
-    fig, ax = plt.subplots()
-
-    ax.bar(df["category"], df["total"])
-
-    ax.set_xlabel("Category")
-    ax.set_ylabel("Amount")
-    ax.set_title("Expense Analysis")
-
-    st.pyplot(fig)
+        st.pyplot(fig)
